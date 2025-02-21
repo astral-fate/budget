@@ -1,1230 +1,390 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رسوم بيانية منفصلة لكل فئة من الميزانية</title>
-    <style>
-        /* ألوان الهوية البصرية */
-        :root {
-            --primary-color: #a78645;
-            --secondary-color: #eeece1;
-            --tertiary-color: #776262;
-            --quaternary-color: #a99163;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            direction: rtl;
-            text-align: right;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: var(--secondary-color);
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            color: var(--primary-color);
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            color: var(--tertiary-color);
-            font-size: 1.1rem;
-        }
-        
-        .summary-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .summary-card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 15px;
-            text-align: center;
-            border-top: 3px solid var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .summary-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .summary-card p {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--tertiary-color);
-        }
-        
-        .summary-card .percentage {
-            font-size: 0.9rem;
-            color: var(--quaternary-color);
-            margin-top: 5px;
-        }
-        
-        .category-section {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 30px;
-            animation: fadeIn 0.5s ease forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .category-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .category-title h2 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-        }
-        
-        .category-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.2rem;
-        }
-        
-        .category-summary {
-            text-align: left;
-        }
-        
-        .category-summary p {
-            color: var(--tertiary-color);
-            font-size: 1rem;
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .chart-container {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .chart-title {
-            color: var(--tertiary-color);
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-        
-        /* رسم دائري */
-        .donut-chart-container {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 0 auto;
-        }
-        
-        .donut-chart {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .donut-segment {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
-            transform-origin: center;
-        }
-        
-        .donut-hole {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60%;
-            height: 60%;
-            background-color: white;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
-        }
-        
-        .donut-hole p {
-            margin: 0;
-            color: var(--primary-color);
-            font-weight: bold;
-        }
-        
-        .donut-label {
-            font-size: 1.2rem;
-        }
-        
-        .donut-value {
-            font-size: 0.9rem;
-            color: var(--tertiary-color);
-        }
-        
-        /* رسم شريطي */
-        .bar-chart {
-            display: flex;
-            flex-direction: column;
-            height: 250px;
-            justify-content: space-between;
-        }
-        
-        .bar-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .bar-label {
-            width: 150px;
-            font-size: 0.9rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .bar-outer {
-            flex-grow: 1;
-            height: 25px;
-            background-color: #eee;
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .bar-inner {
-            height: 100%;
-            background-color: var(--primary-color);
-            border-radius: 5px;
-            transition: width 1s ease-out;
-        }
-        
-        .bar-value {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #333;
-            font-size: 0.8rem;
-            font-weight: bold;
-            direction: ltr;
-        }
-        
-        /* ميزانيات البنود */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        .items-table th, .items-table td {
-            padding: 10px;
-            text-align: right;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .items-table th {
-            background-color: var(--secondary-color);
-            color: var(--tertiary-color);
-            font-weight: bold;
-        }
-        
-        .items-table tr:hover {
-            background-color: #f5f5f5;
-        }
-        
-        .text-left {
-            text-align: left;
-            direction: ltr;
-        }
-        
-        .total-row {
-            font-weight: bold;
-            background-color: var(--secondary-color);
-        }
-        
-        /* بطاقات الفقاعات */
-        .bubble-chart {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            padding: 20px 0;
-        }
-        
-        .bubble {
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .bubble:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-            z-index: 10;
-        }
-        
-        .bubble-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: white;
-            font-size: 0.9rem;
-            padding: 0 10px;
-        }
-        
-        .bubble-value {
-            color: white;
-            font-size: 0.8rem;
-        }
-        
-        /* section divider */
-        .section-divider {
-            display: flex;
-            align-items: center;
-            margin: 40px 0;
-        }
-        
-        .divider-line {
-            flex-grow: 1;
-            height: 2px;
-            background-color: var(--secondary-color);
-        }
-        
-        .divider-text {
-            padding: 0 20px;
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            font-weight: bold;
-        }
-        
-        /* تذييل الصفحة */
-        .footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: var(--tertiary-color);
-            border-top: 1px solid #ddd;
-        }
-        
-        /* scroll to top button */
-        .scroll-top {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-        
-        .scroll-top.visible {
-            opacity: 1;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>الجدول الزمني للتفعيلات والميزانية التشغيلية</h1>
-            <p>رسوم بيانية منفصلة لكل فئة من الميزانية</p>
-        </div>
-        
-        <div class="summary-section">
-            <div class="summary-card" style="border-color: #a78645;">
-                <h3>إجمالي الميزانية</h3>
-                <p id="totalBudget">18,000,000 ريال</p>
-            </div>
-            
-            <div class="summary-card" style="border-color: #a78645;">
-                <h3>التسويق</h3>
-                <p id="marketingTotal">11,000,000 ريال</p>
-                <div class="percentage" id="marketingPercentage">61.1%</div>
-            </div>
-            
-            <div class="summary-card" style="border-color: #776262;">
-                <h3>التطوير</h3>
-                <p id="developmentTotal">4,500,000 ريال</p>
-                <div class="percentage" id="developmentPercentage">25.0%</div>
-            </div>
-            
-            <div class="summary-card" style="border-color: #a99163;">
-                <h3>الفعاليات</h3>
-                <p id="eventsTotal">1,500,000 ريال</p>
-                <div class="percentage" id="eventsPercentage">8.3%</div>
-            </div>
-            
-            <div class="summary-card" style="border-color: #eeece1;">
-                <h3>خدمة العملاء</h3>
-                <p id="customerServiceTotal">1,000,000 ريال</p>
-                <div class="percentage" id="customerServicePercentage">5.6%</div>
-            </div>
-        </div>
-        
-        <!-- قسم النظرة العامة -->
-        <div class="section-divider">
-            <div class="divider-line"></div>
-            <div class="divider-text">النظرة العامة</div>
-            <div class="divider-line"></div>
-        </div>
-        
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-title">
-                    <div class="category-icon" style="background-color: var(--primary-color);">
-                        <i>↗</i>
-                    </div>
-                    <h2>نظرة عامة على الميزانية</h2>
-                </div>
-                <div class="category-summary">
-                    <p>إجمالي الميزانية: <strong>18,000,000 ريال</strong></p>
-                </div>
-            </div>
-            
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <div class="chart-title">توزيع الميزانية حسب الفئة</div>
-                    <div class="donut-chart-container" id="overview-donut">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">أكبر البنود في الميزانية</div>
-                    <div class="bar-chart" id="top-items-bar-chart">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">ميزانيات جميع البنود</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>شرح البند</th>
-                            <th>الفئة</th>
-                            <th class="text-left">الميزانية التقريبية</th>
-                            <th class="text-left">النسبة من الإجمالي</th>
-                        </tr>
-                    </thead>
-                    <tbody id="all-items-table">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- قسم التسويق -->
-        <div class="section-divider">
-            <div class="divider-line"></div>
-            <div class="divider-text">فئة التسويق</div>
-            <div class="divider-line"></div>
-        </div>
-        
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-title">
-                    <div class="category-icon" style="background-color: #a78645;">
-                        <i>📢</i>
-                    </div>
-                    <h2>فئة التسويق</h2>
-                </div>
-                <div class="category-summary">
-                    <p>ميزانية التسويق: <strong id="marketing-total">11,000,000 ريال</strong> (<span id="marketing-percentage">61.1%</span> من الإجمالي)</p>
-                </div>
-            </div>
-            
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <div class="chart-title">توزيع ميزانية التسويق</div>
-                    <div class="donut-chart-container" id="marketing-donut">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">مقارنة بنود التسويق</div>
-                    <div class="bar-chart" id="marketing-bar-chart">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تمثيل بنود التسويق</div>
-                <div class="bubble-chart" id="marketing-bubble-chart">
-                    <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تفاصيل بنود التسويق</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>شرح البند</th>
-                            <th class="text-left">الميزانية التقريبية</th>
-                            <th class="text-left">النسبة من ميزانية التسويق</th>
-                        </tr>
-                    </thead>
-                    <tbody id="marketing-items-table">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- قسم التطوير -->
-        <div class="section-divider">
-            <div class="divider-line"></div>
-            <div class="divider-text">فئة التطوير</div>
-            <div class="divider-line"></div>
-        </div>
-        
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-title">
-                    <div class="category-icon" style="background-color: #776262;">
-                        <i>🏗️</i>
-                    </div>
-                    <h2>فئة التطوير</h2>
-                </div>
-                <div class="category-summary">
-                    <p>ميزانية التطوير: <strong id="development-total">4,500,000 ريال</strong> (<span id="development-percentage">25.0%</span> من الإجمالي)</p>
-                </div>
-            </div>
-            
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <div class="chart-title">توزيع ميزانية التطوير</div>
-                    <div class="donut-chart-container" id="development-donut">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">مقارنة بنود التطوير</div>
-                    <div class="bar-chart" id="development-bar-chart">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تمثيل بنود التطوير</div>
-                <div class="bubble-chart" id="development-bubble-chart">
-                    <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تفاصيل بنود التطوير</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>شرح البند</th>
-                            <th class="text-left">الميزانية التقريبية</th>
-                            <th class="text-left">النسبة من ميزانية التطوير</th>
-                        </tr>
-                    </thead>
-                    <tbody id="development-items-table">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- قسم الفعاليات -->
-        <div class="section-divider">
-            <div class="divider-line"></div>
-            <div class="divider-text">فئة الفعاليات</div>
-            <div class="divider-line"></div>
-        </div>
-        
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-title">
-                    <div class="category-icon" style="background-color: #a99163;">
-                        <i>🎪</i>
-                    </div>
-                    <h2>فئة الفعاليات</h2>
-                </div>
-                <div class="category-summary">
-                    <p>ميزانية الفعاليات: <strong id="events-total">1,500,000 ريال</strong> (<span id="events-percentage">8.3%</span> من الإجمالي)</p>
-                </div>
-            </div>
-            
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <div class="chart-title">توزيع ميزانية الفعاليات</div>
-                    <div class="donut-chart-container" id="events-donut">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">مقارنة بنود الفعاليات</div>
-                    <div class="bar-chart" id="events-bar-chart">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تمثيل بنود الفعاليات</div>
-                <div class="bubble-chart" id="events-bubble-chart">
-                    <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تفاصيل بنود الفعاليات</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>شرح البند</th>
-                            <th class="text-left">الميزانية التقريبية</th>
-                            <th class="text-left">النسبة من ميزانية الفعاليات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="events-items-table">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- قسم خدمة العملاء -->
-        <div class="section-divider">
-            <div class="divider-line"></div>
-            <div class="divider-text">فئة خدمة العملاء</div>
-            <div class="divider-line"></div>
-        </div>
-        
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-title">
-                    <div class="category-icon" style="background-color: #a78645;">
-                        <i>👥</i>
-                    </div>
-                    <h2>فئة خدمة العملاء</h2>
-                </div>
-                <div class="category-summary">
-                    <p>ميزانية خدمة العملاء: <strong id="customerService-total">1,000,000 ريال</strong> (<span id="customerService-percentage">5.6%</span> من الإجمالي)</p>
-                </div>
-            </div>
-            
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <div class="chart-title">توزيع ميزانية خدمة العملاء</div>
-                    <div class="donut-chart-container" id="customerService-donut">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">مقارنة بنود خدمة العملاء</div>
-                    <div class="bar-chart" id="customerService-bar-chart">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تمثيل بنود خدمة العملاء</div>
-                <div class="bubble-chart" id="customerService-bubble-chart">
-                    <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">تفاصيل بنود خدمة العملاء</div>
-                <table class="items-table">
-                    <thead>
-                        <tr>
-                            <th>شرح البند</th>
-                            <th class="text-left">الميزانية التقريبية</th>
-                            <th class="text-left">النسبة من ميزانية خدمة العملاء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerService-items-table">
-                        <!-- سيتم إنشاؤه بواسطة JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="footer">
-            © <span id="currentYear"></span> - الجدول الزمني للتفعيلات والميزانية التشغيلية
-        </div>
-    </div>
-    
-    <!-- زر التمرير لأعلى -->
-    <div class="scroll-top" id="scrollTop">↑</div>
-    
-    <script>
-        // بيانات الميزانية
-        const budgetData = [
-            { name: 'حفل داخلي للموظفين', value: 500000, category: 'فعاليات' },
-            { name: 'تعديل اسوار المشاريع الحالية', value: 1800000, category: 'تطوير' },
-            { name: 'تغير لوحات المشاريع القديمة', value: 1650000, category: 'تطوير' },
-            { name: 'حملات التسويق- تشويق', value: 500000, category: 'تسويق' },
-            { name: 'حملة اوت دور (لوحات طرق)', value: 4000000, category: 'تسويق' },
-            { name: 'التسويق عبر المؤثرين', value: 2000000, category: 'تسويق' },
-            { name: 'اخبار صحفية', value: 500000, category: 'تسويق' },
-            { name: 'فيديو ابداعي', value: 1500000, category: 'تسويق' },
-            { name: 'حملات مروجة', value: 2500000, category: 'تسويق' },
-            { name: 'هدية لجميع العملاء', value: 1000000, category: 'خدمة العملاء' },
-            { name: 'انارات للمشاريع', value: 500000, category: 'تطوير' },
-            { name: 'تطبيقات هوية', value: 550000, category: 'تطوير' },
-            { name: 'حفل مغلق (VIP)', value: 1000000, category: 'فعاليات' }
-        ];
+import React from 'react';
 
-        // ألوان الفئات
-        const categoryColors = {
-            'تسويق': '#a78645',
-            'تطوير': '#776262',
-            'فعاليات': '#a99163',
-            'خدمة العملاء': '#eeece1'
-        };
+const COLORS = {
+  primary: '#a78645',
+  secondary: '#eeece1',
+  tertiary: '#776262',
+  quaternary: '#a99163',
+  white: '#ffffff',
+  black: '#333333',
+};
+
+export default function LaunchCampaignTimeline() {
+  return (
+    <div style={{ 
+      direction: 'rtl', 
+      fontFamily: 'Arial, sans-serif', 
+      backgroundColor: COLORS.secondary,
+      padding: '24px',
+      borderRadius: '12px',
+      color: COLORS.black,
+      maxWidth: '1200px',
+      margin: '0 auto',
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <h1 style={{ color: COLORS.primary, fontSize: '28px', marginBottom: '8px' }}>الجدول الزمني لحملة الإطلاق والأنشطة المرتبطة</h1>
+        <p style={{ color: COLORS.tertiary, fontSize: '16px' }}>الماجدية - خطة إطلاق الهوية الجديدة والاستراتيجية 2025</p>
+      </div>
+      
+      {/* الملخص العام */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ 
+          flex: '1 1 300px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          borderTop: `4px solid ${COLORS.primary}`
+        }}>
+          <h2 style={{ color: COLORS.primary, fontSize: '20px', marginBottom: '12px' }}>فعالية الإطلاق</h2>
+          <div style={{ marginBottom: '8px' }}>
+            <span style={{ fontWeight: 'bold', color: COLORS.tertiary }}>التاريخ: </span>
+            <span>13 ابريل 2025</span>
+          </div>
+          <div style={{ marginBottom: '8px' }}>
+            <span style={{ fontWeight: 'bold', color: COLORS.tertiary }}>التكتيك: </span>
+            <span>نهج مستهدف</span>
+          </div>
+          <div style={{ marginBottom: '8px' }}>
+            <span style={{ fontWeight: 'bold', color: COLORS.tertiary }}>الهدف: </span>
+            <span>إطلاق الهوية الجديدة والإعلان عن الاستراتيجية الجديدة</span>
+          </div>
+        </div>
         
-        // ألوان لمكونات كل فئة
-        const getColorShades = (baseColor, count) => {
-            const shades = [];
-            
-            for (let i = 0; i < count; i++) {
-                // تغميق أو تفتيح اللون بناءً على الترتيب
-                let shade;
-                if (i % 2 === 0) {
-                    // تغميق
-                    shade = adjustColor(baseColor, -15 * Math.floor(i / 2));
-                } else {
-                    // تفتيح
-                    shade = adjustColor(baseColor, 15 * Math.floor(i / 2));
-                }
-                
-                shades.push(shade);
-            }
-            
-            return shades;
-        };
+        <div style={{ 
+          flex: '1 1 300px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+          borderTop: `4px solid ${COLORS.quaternary}`
+        }}>
+          <h2 style={{ color: COLORS.quaternary, fontSize: '20px', marginBottom: '12px' }}>حملة الإطلاق</h2>
+          <div style={{ marginBottom: '8px' }}>
+            <span style={{ fontWeight: 'bold', color: COLORS.tertiary }}>التكتيك: </span>
+            <span>نهج شامل حملة 360 درجة</span>
+          </div>
+          <div style={{ marginBottom: '8px' }}>
+            <span style={{ fontWeight: 'bold', color: COLORS.tertiary }}>الهدف: </span>
+            <span>زيادة الوعي بالعلامة التجارية، إعادة التموضع</span>
+          </div>
+          <div style={{ marginBottom: '8px' }}>
+            <span style={{ fontWeight: 'bold', color: COLORS.tertiary }}>الجمهور المستهدف: </span>
+            <span>أصحاب المصلحة، الشركات، المستثمرون، المؤثرون، الإعلام</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* الخط الزمني الرئيسي */}
+      <div style={{ 
+        backgroundColor: COLORS.white, 
+        borderRadius: '8px', 
+        padding: '24px 16px', 
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+        marginBottom: '32px'
+      }}>
+        <h2 style={{ color: COLORS.primary, fontSize: '20px', marginBottom: '24px', textAlign: 'center' }}>المسار الزمني لحملة الإطلاق</h2>
         
-        // حساب إجمالي الميزانية
-        const totalBudget = budgetData.reduce((sum, item) => sum + item.value, 0);
+        <div style={{ position: 'relative', marginBottom: '60px' }}>
+          {/* خط الزمن */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '35px',
+            right: '0',
+            left: '0',
+            height: '4px', 
+            backgroundColor: COLORS.primary,
+            zIndex: 1
+          }}></div>
+          
+          {/* نقاط الزمن */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', zIndex: 2 }}>
+            {/* 31 ديسمبر */}
+            <div style={{ textAlign: 'center', width: '100px' }}>
+              <div style={{ 
+                width: '24px', 
+                height: '24px', 
+                backgroundColor: COLORS.tertiary, 
+                borderRadius: '50%', 
+                margin: '0 auto 8px',
+                border: `4px solid ${COLORS.white}`
+              }}></div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>31 Dec</div>
+              <div style={{ fontSize: '12px', color: COLORS.tertiary, marginTop: '4px' }}>موسمي</div>
+            </div>
+            
+            {/* 13 مارس */}
+            <div style={{ textAlign: 'center', width: '100px' }}>
+              <div style={{ 
+                width: '24px', 
+                height: '24px', 
+                backgroundColor: COLORS.quaternary, 
+                borderRadius: '50%', 
+                margin: '0 auto 8px',
+                border: `4px solid ${COLORS.white}`
+              }}></div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>13 May</div>
+              <div style={{ fontSize: '12px', color: COLORS.tertiary, marginTop: '4px' }}>تكتيكي</div>
+            </div>
+            
+            {/* 6 أبريل */}
+            <div style={{ textAlign: 'center', width: '100px' }}>
+              <div style={{ 
+                width: '24px', 
+                height: '24px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                margin: '0 auto 8px',
+                border: `4px solid ${COLORS.white}`
+              }}></div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>6 Apr</div>
+              <div style={{ fontSize: '12px', color: COLORS.tertiary, marginTop: '4px' }}>بداية الإطلاق</div>
+            </div>
+            
+            {/* 13 أبريل */}
+            <div style={{ textAlign: 'center', width: '100px' }}>
+              <div style={{ 
+                width: '32px', 
+                height: '32px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                margin: '0 auto 8px',
+                border: `4px solid ${COLORS.white}`,
+                boxShadow: '0 0 10px rgba(167, 134, 69, 0.5)'
+              }}></div>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', color: COLORS.primary }}>13 Apr</div>
+              <div style={{ fontSize: '12px', color: COLORS.tertiary, marginTop: '4px' }}>إطلاق الحملة</div>
+            </div>
+          </div>
+        </div>
         
-        // تجميع البيانات حسب الفئة
-        const categoryTotals = {};
-        const categoryItems = {};
+        <div style={{ textAlign: 'center', backgroundColor: COLORS.tertiary, color: 'white', padding: '8px', borderRadius: '4px', marginBottom: '24px' }}>
+          <strong>إطلاق العلامة التجارية الجديدة / الاستراتيجية بدء الإطلاق</strong>
+        </div>
         
-        budgetData.forEach(item => {
-            // حساب المجموع لكل فئة
-            if (categoryTotals[item.category]) {
-                categoryTotals[item.category] += item.value;
-            } else {
-                categoryTotals[item.category] = item.value;
-                categoryItems[item.category] = [];
-            }
-            
-            // تجميع بنود كل فئة
-            categoryItems[item.category].push(item);
-        });
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between' }}>
+          <div style={{ flex: '1 1 250px', textAlign: 'center', backgroundColor: COLORS.secondary, padding: '12px', borderRadius: '4px' }}>
+            <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>حملة تمهيدية</div>
+            <p style={{ fontSize: '14px' }}>إطلاق حملة تمهيدية باستخدام سور المشاريع، مع تغييرات في حسابات التواصل الاجتماعي (التيزر)</p>
+          </div>
+          
+          <div style={{ flex: '1 1 250px', textAlign: 'center', backgroundColor: COLORS.secondary, padding: '12px', borderRadius: '4px' }}>
+            <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>حملة داخلية</div>
+            <p style={{ fontSize: '14px' }}>إطلاق حملة داخلية لتثقيف الموظفين حول الهوية والاستراتيجية الجديدة</p>
+          </div>
+          
+          <div style={{ flex: '1 1 250px', textAlign: 'center', backgroundColor: COLORS.secondary, padding: '12px', borderRadius: '4px' }}>
+            <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>حملة اتصالات شاملة 360 درجة</div>
+            <p style={{ fontSize: '14px' }}>نهج شامل: حملة 360 درجة لزيادة الوعي بالعلامة التجارية وإعادة التموضع</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* تفاصيل الحملات */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '32px' }}>
+        <div style={{ 
+          flex: '1 1 350px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: COLORS.primary, marginBottom: '16px', borderBottom: `2px solid ${COLORS.secondary}`, paddingBottom: '8px' }}>حملة الإطلاق</h3>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>التاريخ:</div>
+            <div>13 ابريل 2025</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>التكتيك:</div>
+            <div>نهج شامل: حملة 360 درجة</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>الهدف:</div>
+            <div>زيادة الوعي بالعلامة التجارية وإعادة التموضع</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>الجمهور المستهدف:</div>
+            <div>أصحاب المصلحة، الشركات، المستثمرون، المؤثرون، الإعلام</div>
+          </div>
+        </div>
         
-        // عرض الإجماليات في بطاقات الملخص
-        document.getElementById('totalBudget').textContent = formatCurrency(totalBudget);
+        <div style={{ 
+          flex: '1 1 350px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: COLORS.quaternary, marginBottom: '16px', borderBottom: `2px solid ${COLORS.secondary}`, paddingBottom: '8px' }}>حملة تمهيدية</h3>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>التكتيك:</div>
+            <div>نهج مستهدف</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>الوصف:</div>
+            <div>إطلاق حملة تمهيدية باستخدام سور المشاريع، مع تغييرات في حسابات التواصل الاجتماعي (التيزر)</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>البدء:</div>
+            <div>6 أبريل 2025</div>
+          </div>
+        </div>
         
-        for (const category in categoryTotals) {
-            const total = categoryTotals[category];
-            const percentage = (total / totalBudget) * 100;
-            
-            const categoryId = getCategoryId(category);
-            
-            if (document.getElementById(`${categoryId}Total`)) {
-                document.getElementById(`${categoryId}Total`).textContent = formatCurrency(total);
-                document.getElementById(`${categoryId}Percentage`).textContent = formatPercentage(percentage);
-            }
-            
-            // تحديث ملخص الفئة في قسم الفئة
-            if (document.getElementById(`${categoryId}-total`)) {
-                document.getElementById(`${categoryId}-total`).textContent = formatCurrency(total);
-                document.getElementById(`${categoryId}-percentage`).textContent = formatPercentage(percentage);
-            }
-        }
+        <div style={{ 
+          flex: '1 1 350px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: COLORS.tertiary, marginBottom: '16px', borderBottom: `2px solid ${COLORS.secondary}`, paddingBottom: '8px' }}>حملة داخلية</h3>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>التكتيك:</div>
+            <div>نهج مستهدف</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>الوصف:</div>
+            <div>إطلاق حملة داخلية لتثقيف الموظفين حول الهوية والاستراتيجية الجديدة</div>
+          </div>
+          
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', color: COLORS.tertiary, marginBottom: '4px' }}>البدء:</div>
+            <div>6 أبريل 2025</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* البراهين الداعمة والتفاعلات */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px' }}>
+        <div style={{ 
+          flex: '1 1 350px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: COLORS.quaternary, marginBottom: '16px', textAlign: 'center' }}>البراهين الداعمة لرسائل العلامة</h3>
+          
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>حفل اغلاق الصناديق</span>
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>حملات المشاريع النوعية</span>
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>مكانة</span>
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>قرار</span>
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>صرح</span>
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>مجاز</span>
+            </li>
+            <li style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ 
+                width: '10px', 
+                height: '10px', 
+                backgroundColor: COLORS.primary, 
+                borderRadius: '50%', 
+                marginLeft: '8px' 
+              }}></div>
+              <span>حفل شراكتنا مع nhc</span>
+            </li>
+          </ul>
+        </div>
         
-        // إنشاء الرسوم البيانية
-        window.addEventListener('DOMContentLoaded', () => {
-            // إنشاء الرسوم البيانية بتأخير قليل لضمان تحميل العناصر
-            setTimeout(() => {
-                createOverviewCharts();
-                createCategoryCharts('تسويق', 'marketing');
-                createCategoryCharts('تطوير', 'development');
-                createCategoryCharts('فعاليات', 'events');
-                createCategoryCharts('خدمة العملاء', 'customerService');
-                
-                // تفعيل الرسوم المتحركة عند التمرير
-                animateOnScroll();
-            }, 100);
-        });
-        
-        // إضافة السنة الحالية في التذييل
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-        
-        // إضافة مستمع الحدث للتمرير
-        window.addEventListener('scroll', () => {
-            animateOnScroll();
-            toggleScrollTopButton();
-        });
-        
-        // إضافة مستمع الحدث لزر التمرير لأعلى
-        document.getElementById('scrollTop').addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-        
-        /* === وظائف إنشاء الرسوم البيانية === */
-        
-        // إنشاء رسوم بيانية للنظرة العامة
-        function createOverviewCharts() {
-            // إنشاء رسم دائري للفئات
-            createDonutChart('overview-donut', Object.entries(categoryTotals).map(([category, value]) => ({
-                name: category,
-                value: value,
-                color: categoryColors[category]
-            })));
-            
-            // ترتيب البنود حسب القيمة وأخذ أكبر 6 بنود
-            const topItems = [...budgetData].sort((a, b) => b.value - a.value).slice(0, 6);
-            
-            // إنشاء رسم شريطي لأكبر البنود
-            createBarChart('top-items-bar-chart', topItems, item => categoryColors[item.category]);
-            
-            // إنشاء جدول لجميع البنود
-            createItemsTable('all-items-table', budgetData, totalBudget);
-        }
-        
-        // إنشاء رسوم بيانية لفئة محددة
-        function createCategoryCharts(category, categoryId) {
-            const items = categoryItems[category] || [];
-            const categoryTotal = categoryTotals[category] || 0;
-            
-            if (items.length === 0) return;
-            
-            // إنشاء رسم دائري لبنود الفئة
-            createDonutChart(`${categoryId}-donut`, items.map((item, index) => ({
-                name: item.name,
-                value: item.value,
-                color: getColorShades(categoryColors[category], items.length)[index]
-            })));
-            
-            // إنشاء رسم شريطي لبنود الفئة
-            createBarChart(`${categoryId}-bar-chart`, items, 
-                (item, index) => getColorShades(categoryColors[category], items.length)[index]);
-            
-            // إنشاء رسم فقاعي لبنود الفئة
-            createBubbleChart(`${categoryId}-bubble-chart`, items, categoryColors[category]);
-            
-            // إنشاء جدول البنود
-            createCategoryItemsTable(`${categoryId}-items-table`, items, categoryTotal);
-        }
-        
-        // إنشاء رسم دائري
-        function createDonutChart(containerId, data) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            // إنشاء الرسم الدائري
-            const donutChart = document.createElement('div');
-            donutChart.className = 'donut-chart';
-            
-            // حساب النسب المئوية والزوايا
-            const total = data.reduce((sum, item) => sum + item.value, 0);
-            let startAngle = 0;
-            
-            // إنشاء قطاعات الرسم الدائري
-            data.forEach((item, index) => {
-                const percentage = (item.value / total) * 100;
-                const angleSize = (percentage / 100) * 360;
-                
-                const segment = document.createElement('div');
-                segment.className = 'donut-segment';
-                segment.style.backgroundColor = item.color;
-                segment.style.transform = `rotate(${startAngle}deg)`;
-                segment.style.clipPath = `polygon(50% 50%, 100% 0, 100% 100%, 0 100%, 0 0)`;
-                
-                if (angleSize > 180) {
-                    segment.style.clipPath = `polygon(50% 50%, 100% 0, 100% 100%, 0 100%, 0 0)`;
-                } else {
-                    const endX = 50 + 50 * Math.cos((startAngle + angleSize) * (Math.PI / 180));
-                    const endY = 50 + 50 * Math.sin((startAngle + angleSize) * (Math.PI / 180));
-                    segment.style.clipPath = `polygon(50% 50%, 100% 0, ${endX}% ${endY}%)`;
-                }
-                
-                segment.title = `${item.name}: ${formatPercentage(percentage)}`;
-                
-                donutChart.appendChild(segment);
-                startAngle += angleSize;
-            });
-            
-            // إنشاء الثقب الأوسط
-            const donutHole = document.createElement('div');
-            donutHole.className = 'donut-hole';
-            
-            // إنشاء محتوى الثقب الأوسط
-            const label = document.createElement('p');
-            label.className = 'donut-label';
-            label.textContent = data.length > 1 ? `${data.length} بنود` : data[0].name;
-            
-            const value = document.createElement('p');
-            value.className = 'donut-value';
-            value.textContent = formatCurrency(total);
-            
-            donutHole.appendChild(label);
-            donutHole.appendChild(value);
-            
-            // تجميع الرسم الدائري
-            donutChart.appendChild(donutHole);
-            container.appendChild(donutChart);
-        }
-        
-        // إنشاء رسم شريطي
-        function createBarChart(containerId, data, colorCallback) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            // الحصول على أقصى قيمة لتحديد النسب
-            const maxValue = Math.max(...data.map(item => item.value));
-            
-            // ترتيب البيانات من الأكبر إلى الأصغر
-            const sortedData = [...data].sort((a, b) => b.value - a.value);
-            
-            // إنشاء أشرطة الرسم البياني
-            sortedData.forEach((item, index) => {
-                const percentage = (item.value / maxValue) * 100;
-                const color = typeof colorCallback === 'function' ? colorCallback(item, index) : '#a78645';
-                
-                const barItem = document.createElement('div');
-                barItem.className = 'bar-item';
-                
-                const barLabel = document.createElement('div');
-                barLabel.className = 'bar-label';
-                barLabel.title = item.name; // إضافة تلميح للاسم الكامل
-                barLabel.textContent = item.name;
-                
-                const barOuter = document.createElement('div');
-                barOuter.className = 'bar-outer';
-                
-                const barInner = document.createElement('div');
-                barInner.className = 'bar-inner';
-                barInner.style.width = '0%'; // سيتم تحديثه بعد الإضافة للحصول على تأثير الرسوم المتحركة
-                barInner.style.backgroundColor = color;
-                
-                const barValue = document.createElement('div');
-                barValue.className = 'bar-value';
-                barValue.textContent = formatCurrency(item.value);
-                
-                barOuter.appendChild(barInner);
-                barOuter.appendChild(barValue);
-                barItem.appendChild(barLabel);
-                barItem.appendChild(barOuter);
-                
-                container.appendChild(barItem);
-                
-                // تحديث عرض الشريط بعد الإضافة للحصول على تأثير الرسوم المتحركة
-                setTimeout(() => {
-                    barInner.style.width = `${percentage}%`;
-                }, 50 * index);
-            });
-        }
-        
-        // إنشاء رسم فقاعي
-        function createBubbleChart(containerId, data, baseColor) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            // الحصول على أقصى قيمة لتحديد أحجام الفقاعات
-            const maxValue = Math.max(...data.map(item => item.value));
-            
-            // إنشاء فقاعات
-            data.forEach((item, index) => {
-                // حساب حجم الفقاعة بناءً على قيمة البند
-                const minSize = 80;
-                const maxSize = 180;
-                const size = minSize + ((item.value / maxValue) * (maxSize - minSize));
-                
-                // الحصول على درجة لونية مختلفة لكل فقاعة
-                const color = getColorShades(baseColor, data.length)[index];
-                
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                bubble.style.width = `${size}px`;
-                bubble.style.height = `${size}px`;
-                bubble.style.backgroundColor = color;
-                
-                bubble.innerHTML = `
-                    <div class="bubble-title">${item.name}</div>
-                    <div class="bubble-value">${formatCurrency(item.value)}</div>
-                `;
-                
-                container.appendChild(bubble);
-            });
-        }
-        
-        // إنشاء جدول لجميع البنود
-        function createItemsTable(containerId, data, totalValue) {
-            const tbody = document.getElementById(containerId);
-            if (!tbody) return;
-            
-            tbody.innerHTML = '';
-            
-            // ترتيب البيانات حسب القيمة (من الأعلى إلى الأدنى)
-            const sortedData = [...data].sort((a, b) => b.value - a.value);
-            
-            // إنشاء صفوف الجدول
-            sortedData.forEach(item => {
-                const percentage = (item.value / totalValue) * 100;
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.category}</td>
-                    <td class="text-left">${formatCurrency(item.value)}</td>
-                    <td class="text-left">${formatPercentage(percentage)}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-            
-            // إضافة صف المجموع
-            const totalRow = document.createElement('tr');
-            totalRow.className = 'total-row';
-            totalRow.innerHTML = `
-                <td colspan="2">المجموع</td>
-                <td class="text-left">${formatCurrency(totalValue)}</td>
-                <td class="text-left">100%</td>
-            `;
-            
-            tbody.appendChild(totalRow);
-        }
-        
-        // إنشاء جدول لبنود فئة محددة
-        function createCategoryItemsTable(containerId, data, categoryTotal) {
-            const tbody = document.getElementById(containerId);
-            if (!tbody) return;
-            
-            tbody.innerHTML = '';
-            
-            // ترتيب البيانات حسب القيمة (من الأعلى إلى الأدنى)
-            const sortedData = [...data].sort((a, b) => b.value - a.value);
-            
-            // إنشاء صفوف الجدول
-            sortedData.forEach(item => {
-                const percentage = (item.value / categoryTotal) * 100;
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td class="text-left">${formatCurrency(item.value)}</td>
-                    <td class="text-left">${formatPercentage(percentage)}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-            
-            // إضافة صف المجموع
-            const totalRow = document.createElement('tr');
-            totalRow.className = 'total-row';
-            totalRow.innerHTML = `
-                <td>المجموع</td>
-                <td class="text-left">${formatCurrency(categoryTotal)}</td>
-                <td class="text-left">100%</td>
-            `;
-            
-            tbody.appendChild(totalRow);
-        }
-        
-        // تحريك عناصر عند التمرير
-        function animateOnScroll() {
-            const sections = document.querySelectorAll('.category-section');
-            const windowHeight = window.innerHeight;
-            
-            sections.forEach(section => {
-                const sectionTop = section.getBoundingClientRect().top;
-                
-                // عندما يكون القسم ضمن مجال الرؤية
-                if (sectionTop < windowHeight * 0.8) {
-                    section.style.opacity = 1;
-                    section.style.transform = 'translateY(0)';
-                }
-            });
-        }
-        
-        // إظهار/إخفاء زر التمرير لأعلى
-        function toggleScrollTopButton() {
-            const scrollButton = document.getElementById('scrollTop');
-            
-            if (window.scrollY > 500) {
-                scrollButton.classList.add('visible');
-            } else {
-                scrollButton.classList.remove('visible');
-            }
-        }
-        
-        /* === وظائف مساعدة === */
-        
-        // تنسيق القيم المالية
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('ar-SA', { 
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(value) + ' ريال';
-        }
-        
-        // تنسيق النسب المئوية
-        function formatPercentage(value) {
-            return value.toFixed(1) + '%';
-        }
-        
-        // الحصول على معرف لاسم الفئة
-        function getCategoryId(category) {
-            switch (category) {
-                case 'تسويق': return 'marketing';
-                case 'تطوير': return 'development';
-                case 'فعاليات': return 'events';
-                case 'خدمة العملاء': return 'customerService';
-                default: return category.toLowerCase().replace(/ /g, '');
-            }
-        }
-        
-        // تعديل لون (تغميق أو تفتيح)
-        function adjustColor(color, amount) {
-            // تحويل اللون إلى RGB
-            let usePound = false;
-            
-            if (color[0] === "#") {
-                color = color.slice(1);
-                usePound = true;
-            }
-            
-            // تحويل من نظام 16 إلى عشري
-            let num = parseInt(color, 16);
-            
-            // تعديل كل قناة لونية
-            let r = (num >> 16) + amount;
-            let g = ((num >> 8) & 0x00FF) + amount;
-            let b = (num & 0x0000FF) + amount;
-            
-            // ضمان بقاء القيم ضمن النطاق المسموح
-            r = Math.min(255, Math.max(0, r));
-            g = Math.min(255, Math.max(0, g));
-            b = Math.min(255, Math.max(0, b));
-            
-            // تحويل مرة أخرى إلى نظام 16
-            const result = ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
-            
-            return (usePound ? "#" : "") + result;
-        }
-        
-        // إضافة تأثيرات حركية لبطاقات العرض
-        document.querySelectorAll('.category-section').forEach(section => {
-            section.style.opacity = 0;
-            section.style.transform = 'translateY(20px)';
-            section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        });
-    </script>
-</body>
-</html>
+        <div style={{ 
+          flex: '1 1 350px', 
+          backgroundColor: COLORS.white, 
+          borderRadius: '8px', 
+          padding: '16px', 
+          boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: COLORS.tertiary, marginBottom: '16px', textAlign: 'center' }}>التفاعل مع السكان</h3>
+          
+          <p style={{ marginBottom: '16px', lineHeight: '1.6' }}>
+            سكان الماجدية لهم تأثير مباشر على المجتمعات التي نستهدفها. احتفل بالعيد معهم بطريقة مميزة!
+          </p>
+          
+          <div style={{ 
+            backgroundColor: COLORS.secondary, 
+            padding: '12px', 
+            borderRadius: '4px', 
+            marginBottom: '16px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            color: COLORS.tertiary
+          }}>
+            التفاعل مع اليوم الوطني
+          </div>
+          
+          <div style={{ 
+            backgroundColor: COLORS.secondary, 
+            padding: '12px', 
+            borderRadius: '4px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            color: COLORS.tertiary
+          }}>
+            عيد الأضحى / اليوم الوطني
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
