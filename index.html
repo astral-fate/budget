@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مخطط جانت للمشروع 2025</title>
+    <link rel="stylesheet" href="styles.css">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f2efe7;
+    color: #3a3a3a;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #7d6b6b;
+    margin-bottom: 8px;
+}
+
+header p {
+    font-size: 1rem;
+    color: #3a3a3a;
+}
+
+.gantt-chart {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.timeline-header {
+    position: relative;
+    height: 32px;
+    border-bottom: 1px solid #7d6b6b;
+}
+
+.month-labels {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.month-labels div {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    border-left: 1px solid #ccc;
+    padding: 4px;
+}
+
+.gantt-body {
+    position: relative;
+}
+
+.timeline-grid {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
+.timeline-grid div {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid #ccc;
+}
+
+.categories {
+    position: relative;
+}
+
+.category {
+    border-bottom: 1px solid #eee;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+}
+
+.category-header:hover {
+    background-color: #f9f9f9;
+}
+
+.category-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.category-name {
+    width: 25%;
+    font-weight: bold;
+    color: #7d6b6b;
+}
+
+.task-bars {
+    width: 75%;
+    position: relative;
+    height: 24px;
+}
+
+.task-bar {
+    position: absolute;
+    height: 16px;
+    border-radius: 8px;
+    opacity: 0.7;
+    top: 4px;
+}
+
+.tasks {
+    background-color: #f9f9f9;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-top: 1px solid #eee;
+}
+
+.task-name {
+    width: 25%;
+    padding-left: 8px;
+    font-size: 0.875rem;
+}
+
+.task-bar-detail {
+    width: 75%;
+    position: relative;
+    height: 24px;
+}
+
+.task-bar-detail div {
+    position: absolute;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0 8px;
+}
+
+.today-marker {
+    position: relative;
+    height: 32px;
+    margin-bottom: 24px;
+}
+
+.marker-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 33.33%;
+    border-left: 2px solid red;
+    z-index: 10;
+}
+
+.marker-label {
+    position: absolute;
+    top: 0;
+    right: 33.33%;
+    transform: translateX(-50%);
+    background-color: red;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.instructions {
+    background-color: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.legend {
+    background-color: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 24px;
+}
+
+.legend h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #7d6b6b;
+    margin-bottom: 12px;
+}
+
+.legend-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+}
+
+.legend-item div {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.update-date {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 0.875rem;
+    color: #3a3a3a;
+}
+</style>
+
+</head>
+<body>
+    <div id="app" class="container">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold mb-2">مخطط جانت للمشروع 2025</h1>
+            <p class="text-base">خطة العمل من يناير إلى مايو</p>
+        </header>
+
+        <div class="gantt-chart">
+            <!-- Timeline header with months -->
+            <div class="timeline-header">
+                <div class="month-labels"></div>
+            </div>
+
+            <!-- Main Gantt chart area -->
+            <div class="gantt-body">
+                <div class="timeline-grid"></div>
+                <div class="categories"></div>
+            </div>
+        </div>
+
+        <!-- Today marker -->
+        <div class="today-marker">
+            <div class="marker-line"></div>
+            <div class="marker-label">اليوم</div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <p>انقر على اسم الفئة لعرض تفاصيل المهام الخاصة بها</p>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>دليل الألوان</h3>
+            <div class="legend-items"></div>
+        </div>
+
+        <div class="update-date">
+            تم تحديث المخطط بتاريخ ٢٢ فبراير ٢٠٢٥
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    
+    <script>
+      
+      const colors = {
+    primary: '#7d6b6b',
+    secondary: '#f2efe7',
+    accent: '#a78645',
+    text: '#3a3a3a',
+    success: '#4caf50',
+    info: '#2196f3'
+};
+
+const months = [
+    { id: 1, name: 'يناير', days: 31, startOffset: 0 },
+    { id: 2, name: 'فبراير', days: 28, startOffset: 31 },
+    { id: 3, name: 'مارس', days: 31, startOffset: 59 },
+    { id: 4, name: 'أبريل', days: 30, startOffset: 90 },
+    { id: 5, name: 'مايو', days: 31, startOffset: 120 }
+];
+
+const totalDays = 151; // Jan 1 to May 31
+
+const categories = [
+    { id: 'budget', name: 'مراجعة الميزانية', color: colors.accent },
+    { id: 'operations', name: 'التشغيل والصيانة', color: colors.info },
+    { id: 'hr', name: 'الموارد البشرية', color: colors.primary },
+    { id: 'communities', name: 'إدارة المجتمعات', color: colors.success },
+    { id: 'systems', name: 'تشغيل نظام الاستبيانات', color: colors.primary },
+    { id: 'callcenter', name: 'مركز الاتصال', color: colors.accent },
+    { id: 'design', name: 'متطلبات التصاميم', color: colors.info },
+    { id: 'monitoring', name: 'المراقبة المركزية', color: colors.success },
+    { id: 'inspection', name: 'معاينة الوحدات', color: colors.primary },
+    { id: 'service', name: 'مستوى الخدمة', color: colors.info },
+    { id: 'system', name: 'بدء تشغيل النظام', color: colors.accent },
+    { id: 'projects', name: 'استلام المشاريع', color: colors.success }
+];
+
+const tasks = [
+    // Budget Tasks
+    { id: 'b1', categoryId: 'budget', name: 'تفصيل متطلبات الميزانية', startMonth: 1, startDay: 15, endMonth: 2, endDay: 1 },
+    { id: 'b2', categoryId: 'budget', name: 'ميزانية التشغيل', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b3', categoryId: 'budget', name: 'ميزانية التسليم', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b4', categoryId: 'budget', name: 'ميزانية مركز العمليات', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b5', categoryId: 'budget', name: 'ميزانية الصيانة', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b6', categoryId: 'budget', name: 'ميزانية إدارة المجتمعات', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b7', categoryId: 'budget', name: 'ميزانية التواصل الاجتماعي', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b8', categoryId: 'budget', name: 'ميزانية الباقات', startMonth: 2, startDay: 1, endMonth: 2, endDay: 15 },
+    { id: 'b9', categoryId: 'budget', name: 'استراتيجية الخدمات الربحية', startMonth: 2, startDay: 15, endMonth: 3, endDay: 1 },
+    { id: 'b10', categoryId: 'budget', name: 'اختيار المشاريع', startMonth: 2, startDay: 15, endMonth: 3, endDay: 1 },
+    { id: 'b11', categoryId: 'budget', name: 'تحديد موارد للنفقات', startMonth: 2, startDay: 15, endMonth: 3, endDay: 1 },
+    
+    // Operations Tasks
+    { id: 'o1', categoryId: 'operations', name: 'تشغيل التطبيقات', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'o2', categoryId: 'operations', name: 'تطبيقات المعاينة', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'o3', categoryId: 'operations', name: 'تطبيقات التشغيل', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'o4', categoryId: 'operations', name: 'تطبيقات الصيانة', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'o5', categoryId: 'operations', name: 'الخدمات المدفوعة', startMonth: 3, startDay: 15, endMonth: 4, endDay: 15 },
+    { id: 'o6', categoryId: 'operations', name: 'قياس أداء المشغلين', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'o7', categoryId: 'operations', name: 'بدء قياس مستوى الخدمة', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    
+    // HR Tasks
+    { id: 'h1', categoryId: 'hr', name: 'توظيف المشرفين والإداريين', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'h2', categoryId: 'hr', name: 'توظيف مشرفي الاستلام', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'h3', categoryId: 'hr', name: 'توظيف مشرفي الصيانة', startMonth: 2, startDay: 1, endMonth: 3, endDay: 1 },
+    { id: 'h4', categoryId: 'hr', name: 'توظيف مشرفي التشغيل', startMonth: 2, startDay: 1, endMonth: 3, endDay: 1 },
+    { id: 'h5', categoryId: 'hr', name: 'توظيف الأخصائيين لمركز الاتصال', startMonth: 2, startDay: 15, endMonth: 3, endDay: 15 },
+    { id: 'h6', categoryId: 'hr', name: 'توظيف إداريين', startMonth: 2, startDay: 15, endMonth: 3, endDay: 15 },
+    { id: 'h7', categoryId: 'hr', name: 'إجازة عيد الفطر المبارك', startMonth: 4, startDay: 15, endMonth: 5, endDay: 1 },
+    
+    // Communities Tasks
+    { id: 'c1', categoryId: 'communities', name: 'البدء بإعمال إدارة المجتمعات', startMonth: 3, startDay: 1, endMonth: 3, endDay: 15 },
+    { id: 'c2', categoryId: 'communities', name: 'التركيز على مشروعين', startMonth: 3, startDay: 1, endMonth: 3, endDay: 15 },
+    { id: 'c3', categoryId: 'communities', name: 'التحضير لشهر رمضان المبارك', startMonth: 3, startDay: 15, endMonth: 4, endDay: 1 },
+    { id: 'c4', categoryId: 'communities', name: 'التخطيط للفصل الثاني', startMonth: 4, startDay: 1, endMonth: 4, endDay: 15 },
+    { id: 'c5', categoryId: 'communities', name: 'بدء تطبيق برنامج التواصل الاجتماعي', startMonth: 4, startDay: 15, endMonth: 5, endDay: 1 },
+    { id: 'c6', categoryId: 'communities', name: 'طرح الباقات تدريجيًا', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    { id: 'c7', categoryId: 'communities', name: 'طرح باقة الاستقبال تدريجيًا', startMonth: 5, startDay: 1, endMonth: 5, endDay: 15 },
+    { id: 'c8', categoryId: 'communities', name: 'طرح باقة الصيانة تدريجيًا', startMonth: 5, startDay: 1, endMonth: 5, endDay: 15 },
+    { id: 'c9', categoryId: 'communities', name: 'طرح باقة الانتقال تدريجيًا', startMonth: 5, startDay: 1, endMonth: 5, endDay: 15 },
+    
+    // Systems Tasks
+    { id: 's1', categoryId: 'systems', name: 'تفعيل نظام الاستبيانات', startMonth: 3, startDay: 15, endMonth: 4, endDay: 1 },
+    { id: 's2', categoryId: 'systems', name: 'ربط النظام باتمام', startMonth: 3, startDay: 15, endMonth: 4, endDay: 1 },
+    { id: 's3', categoryId: 'systems', name: 'ربط النظام باتصال', startMonth: 3, startDay: 15, endMonth: 4, endDay: 1 },
+    { id: 's4', categoryId: 'systems', name: 'أتمتة الاستبيانات', startMonth: 4, startDay: 1, endMonth: 4, endDay: 15 },
+    
+    // Call Center Tasks
+    { id: 'cc1', categoryId: 'callcenter', name: 'تشغيل مركز الاتصال', startMonth: 3, startDay: 1, endMonth: 3, endDay: 15 },
+    { id: 'cc2', categoryId: 'callcenter', name: 'استعمال تطبيق الماجدية', startMonth: 3, startDay: 1, endMonth: 3, endDay: 15 },
+    { id: 'cc3', categoryId: 'callcenter', name: 'مركز عمليات شامل', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'cc4', categoryId: 'callcenter', name: '٣ اسابيع', startMonth: 4, startDay: 15, endMonth: 5, endDay: 1 },
+    
+    // Design Tasks
+    { id: 'd1', categoryId: 'design', name: 'ترجمة احتياجات العملاء في التصميم', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'd2', categoryId: 'design', name: 'احتياجات السلامة الأمان', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'd3', categoryId: 'design', name: 'احتياجات تسهيل استعمال المرافق', startMonth: 2, startDay: 1, endMonth: 3, endDay: 1 },
+    { id: 'd4', categoryId: 'design', name: 'مراجعة تصاميم المرافق', startMonth: 2, startDay: 15, endMonth: 3, endDay: 15 },
+    { id: 'd5', categoryId: 'design', name: 'اختيار الأثاث', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'd6', categoryId: 'design', name: 'متطلبات النظافة', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    
+    // Monitoring Tasks
+    { id: 'm1', categoryId: 'monitoring', name: 'تحقيق أفضل الممارسات', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'm2', categoryId: 'monitoring', name: 'تحديث الممارسات', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'm3', categoryId: 'monitoring', name: 'تحديد المعايير المطبقة', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'm4', categoryId: 'monitoring', name: 'تكامل أنظمة الأتمتة', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    
+    // Inspection Tasks
+    { id: 'i1', categoryId: 'inspection', name: 'المعاينة المسبقة قبل التسليم', startMonth: 3, startDay: 15, endMonth: 4, endDay: 15 },
+    { id: 'i2', categoryId: 'inspection', name: 'إجراءات معاينة شاملة واختبارات', startMonth: 3, startDay: 15, endMonth: 4, endDay: 15 },
+    { id: 'i3', categoryId: 'inspection', name: 'إجراءات التنظيف العميق', startMonth: 3, startDay: 15, endMonth: 4, endDay: 15 },
+    { id: 'i4', categoryId: 'inspection', name: 'تحديث العقود', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'i5', categoryId: 'inspection', name: 'تحديث عقود المقاولين', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'i6', categoryId: 'inspection', name: 'تحديث نطاق العمل', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'i7', categoryId: 'inspection', name: 'تحديث متطلبات الضمانات', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    
+    // Service Tasks
+    { id: 'sv1', categoryId: 'service', name: 'تحديد معايير الماجدية', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'sv2', categoryId: 'service', name: 'تحديد المعايير الفنية', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'sv3', categoryId: 'service', name: 'تحديد معايير التنفيذ', startMonth: 2, startDay: 1, endMonth: 3, endDay: 1 },
+    { id: 'sv4', categoryId: 'service', name: 'تحديد معايير التشغيل', startMonth: 2, startDay: 1, endMonth: 3, endDay: 1 },
+    { id: 'sv5', categoryId: 'service', name: 'تمكين امتياز العملاء', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    { id: 'sv6', categoryId: 'service', name: 'متطلبات المستندات', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    
+    // System Tasks
+    { id: 'sys1', categoryId: 'system', name: 'الاستلام والتسليم', startMonth: 2, startDay: 15, endMonth: 3, endDay: 15 },
+    { id: 'sys2', categoryId: 'system', name: 'توثيق المعاينة', startMonth: 2, startDay: 15, endMonth: 3, endDay: 15 },
+    { id: 'sys3', categoryId: 'system', name: 'توثيق التسليم', startMonth: 2, startDay: 15, endMonth: 3, endDay: 15 },
+    { id: 'sys4', categoryId: 'system', name: 'تحديد المواعيد', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'sys5', categoryId: 'system', name: 'تسليم البيانات الكترونيا', startMonth: 3, startDay: 1, endMonth: 4, endDay: 1 },
+    { id: 'sys6', categoryId: 'system', name: 'تحديثات منتظمة للعملاء', startMonth: 3, startDay: 15, endMonth: 4, endDay: 15 },
+    { id: 'sys7', categoryId: 'system', name: 'تحديد نظام التشغيل', startMonth: 3, startDay: 15, endMonth: 4, endDay: 15 },
+    { id: 'sys8', categoryId: 'system', name: 'تأكيد المتطلبات الفنية', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'sys9', categoryId: 'system', name: 'انهاء مصفوفة الامتثال', startMonth: 4, startDay: 1, endMonth: 5, endDay: 1 },
+    { id: 'sys10', categoryId: 'system', name: 'وضع التوصية النهائية', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    { id: 'sys11', categoryId: 'system', name: 'اختيار المورد', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    { id: 'sys12', categoryId: 'system', name: 'ارسال خطاب الاعتماد LOI', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    { id: 'sys13', categoryId: 'system', name: 'تحديد نظام الاتصالات', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    { id: 'sys14', categoryId: 'system', name: 'تحديد نظام الاستبيانات', startMonth: 4, startDay: 15, endMonth: 5, endDay: 15 },
+    
+    // Projects Tasks
+    { id: 'p1', categoryId: 'projects', name: 'وضع المحددات الرئيسية', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'p2', categoryId: 'projects', name: 'محددات الأنظمة', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 },
+    { id: 'p3', categoryId: 'projects', name: 'المحددات المعمارية', startMonth: 1, startDay: 15, endMonth: 2, endDay: 15 }
+];
+
+const calculateDayNumber = (month, day) => {
+    const targetMonth = months.find(m => m.id === month);
+    return targetMonth.startOffset + day;
+};
+
+const calculatePosition = (task) => {
+    const startDay = calculateDayNumber(task.startMonth, task.startDay);
+    const endDay = calculateDayNumber(task.endMonth, task.endDay);
+    
+    const startPercentage = (startDay / totalDays) * 100;
+    const width = ((endDay - startDay + 1) / totalDays) * 100;
+    
+    return {
+        right: `${startPercentage}%`,
+        width: `${width}%`
+    };
+};
+
+const generateMonthLabels = () => {
+    const monthLabels = document.querySelector('.month-labels');
+    months.forEach(month => {
+        const startPercentage = (month.startOffset / totalDays) * 100;
+        const width = (month.days / totalDays) * 100;
+        
+        const monthLabel = document.createElement('div');
+        monthLabel.style.right = `${startPercentage}%`;
+        monthLabel.style.width = `${width}%`;
+        monthLabel.textContent = month.name;
+        monthLabels.appendChild(monthLabel);
+    });
+};
+
+const generateTimelineGrid = () => {
+    const timelineGrid = document.querySelector('.timeline-grid');
+    months.forEach(month => {
+        const monthStartPercentage = (month.startOffset / totalDays) * 100;
+        const gridLine = document.createElement('div');
+        gridLine.style.right = `${monthStartPercentage}%`;
+        gridLine.style.borderColor = '#ccc';
+        timelineGrid.appendChild(gridLine);
+        
+        if (month.days >= 15) {
+            const midMonthPercentage = ((month.startOffset + 14) / totalDays) * 100;
+            const midGridLine = document.createElement('div');
+            midGridLine.style.right = `${midMonthPercentage}%`;
+            midGridLine.style.borderColor = '#eee';
+            timelineGrid.appendChild(midGridLine);
+        }
+    });
+};
+
+const generateCategories = () => {
+    const categoriesContainer = document.querySelector('.categories');
+    categories.forEach(category => {
+        const categoryTasks = tasks.filter(task => task.categoryId === category.id);
+        
+        const categoryDiv = document.createElement('div');
+        categoryDiv.classList.add('category');
+        
+        const categoryHeader = document.createElement('div');
+        categoryHeader.classList.add('category-header');
+        categoryHeader.addEventListener('click', () => toggleCategory(categoryDiv));
+        
+        const categoryColor = document.createElement('div');
+        categoryColor.classList.add('category-color');
+        categoryColor.style.backgroundColor = category.color;
+        
+        const categoryName = document.createElement('div');
+        categoryName.classList.add('category-name');
+        categoryName.textContent = category.name;
+        
+        const taskBars = document.createElement('div');
+        taskBars.classList.add('task-bars');
+        
+        categoryTasks.forEach(task => {
+            const taskBar = document.createElement('div');
+            taskBar.classList.add('task-bar');
+            const position = calculatePosition(task);
+            taskBar.style.right = position.right;
+            taskBar.style.width = position.width;
+            taskBar.style.backgroundColor = category.color;
+            taskBars.appendChild(taskBar);
+        });
+        
+        categoryHeader.appendChild(categoryColor);
+        categoryHeader.appendChild(categoryName);
+        categoryHeader.appendChild(taskBars);
+        categoryDiv.appendChild(categoryHeader);
+        
+        const tasksDiv = document.createElement('div');
+        tasksDiv.classList.add('tasks');
+        tasksDiv.style.display = 'none';
+        
+        categoryTasks.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.classList.add('task');
+            
+            const taskName = document.createElement('div');
+            taskName.classList.add('task-name');
+            taskName.textContent = task.name;
+            
+            const taskBarDetail = document.createElement('div');
+            taskBarDetail.classList.add('task-bar-detail');
+            
+            const taskBar = document.createElement('div');
+            const position = calculatePosition(task);
+            taskBar.style.right = position.right;
+            taskBar.style.width = position.width;
+            taskBar.style.backgroundColor = category.color;
+            taskBar.textContent = `${task.startMonth}/${task.startDay} - ${task.endMonth}/${task.endDay}`;
+            
+            taskBarDetail.appendChild(taskBar);
+            taskDiv.appendChild(taskName);
+            taskDiv.appendChild(taskBarDetail);
+            tasksDiv.appendChild(taskDiv);
+        });
+        
+        categoryDiv.appendChild(tasksDiv);
+        categoriesContainer.appendChild(categoryDiv);
+    });
+};
+
+const toggleCategory = (categoryDiv) => {
+    const tasksDiv = categoryDiv.querySelector('.tasks');
+    tasksDiv.style.display = tasksDiv.style.display === 'none' ? 'block' : 'none';
+};
+
+const generateLegend = () => {
+    const legendItems = document.querySelector('.legend-items');
+    categories.forEach(category => {
+        const legendItem = document.createElement('div');
+        legendItem.classList.add('legend-item');
+        
+        const legendColor = document.createElement('div');
+        legendColor.style.backgroundColor = category.color;
+        
+        const legendName = document.createElement('span');
+        legendName.textContent = category.name;
+        
+        legendItem.appendChild(legendColor);
+        legendItem.appendChild(legendName);
+        legendItems.appendChild(legendItem);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateMonthLabels();
+    generateTimelineGrid();
+    generateCategories();
+    generateLegend();
+});
+    </script>
+</body>
+</html>
