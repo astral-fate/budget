@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة معلومات المشاريع العقارية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #a78645;
+            --secondary-color: #36454F;
+            --tertiary-color: #776262;
+            --quaternary-color: #a99163;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --danger-color: #F44336;
+            --grey-color: #9E9E9E;
+            --light-grey: #EEECE1;
+            --white: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: var(--tertiary-color);
+            font-size: 16px;
+        }
+        
+        .stats-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1 1 200px;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card-primary {
+            border-top: 3px solid var(--primary-color);
+        }
+        
+        .card-quaternary {
+            border-top: 3px solid var(--quaternary-color);
+        }
+        
+        .card-tertiary {
+            border-top: 3px solid var(--tertiary-color);
+        }
+        
+        .stat-card h3 {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+        
+        .stat-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-item p {
+            color: var(--tertiary-color);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .primary-value {
+            color: var(--primary-color);
+        }
+        
+        .quaternary-value {
+            color: var(--quaternary-color);
+        }
+        
+        .success-value {
+            color: var(--success-color);
+        }
+        
+        .danger-value {
+            color: var(--danger-color);
+        }
+        
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-card {
+            flex: 1 1 350px;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin: 0 auto;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .divider-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: var(--light-grey);
+        }
+        
+        .divider-text {
+            padding: 0 20px;
+            font-size: 20px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .project-phases {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .phase-card {
+            background-color: var(--light-grey);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .phase-primary {
+            border-right: 4px solid var(--primary-color);
+        }
+        
+        .phase-quaternary {
+            border-right: 4px solid var(--quaternary-color);
+        }
+        
+        .phase-secondary {
+            border-right: 4px solid var(--secondary-color);
+        }
+        
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .phase-title {
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .title-primary {
+            color: var(--primary-color);
+        }
+        
+        .title-quaternary {
+            color: var(--quaternary-color);
+        }
+        
+        .title-secondary {
+            color: var(--secondary-color);
+        }
+        
+        .phase-count {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .phase-detail {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+        }
+        
+        .metrics-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            background-color: var(--white);
+            padding: 8px;
+            border-radius: 5px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .metric-item {
+            flex: 1 0 45%;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: var(--tertiary-color);
+        }
+        
+        .metric-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--tertiary-color);
+            font-size: 14px;
+            padding: 20px 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stats-cards {
+                flex-direction: column;
+            }
+            
+            .stat-card {
+                flex: 1 1 100%;
+            }
+            
+            .chart-card {
+                flex: 1 1 100%;
+            }
+        }
+
+        .unit-icon {
+            font-size: 16px;
+            margin-left: 5px;
+            color: var(--tertiary-color);
+        }
+        
+        .unit-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .unit-stat {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .unit-count {
+            margin: 0 5px 0 0;
+            color: var(--tertiary-color);
+        }
+        
+        .unit-label {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>لوحة معلومات المشاريع العقارية</h1>
+            <p>تقرير أداء المشاريع والوحدات في المحفظة</p>
+        </header>
+        
+        <div class="stats-cards">
+            <div class="stat-card card-primary">
+                <h3>عدد المشاريع</h3>
+                <div class="stat-flex">
+                    <div class="stat-item">
+                        <p>في المحفظة</p>
+                        <div class="stat-value primary-value">55</div>
+                    </div>
+                    <div class="stat-item">
+                        <p>مشروع نشط</p>
+                        <div class="stat-value quaternary-value">4</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card card-quaternary">
+                <h3>إجمالي الوحدات</h3>
+                <div class="stat-flex">
+                    <div class="stat-item">
+                        <div class="stat-value quaternary-value">4968</div>
+                        <p>وحدة</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="unit-stats">
+                            <div class="unit-stat">
+                                <span class="unit-count">324</span>
+                                <span class="unit-label">أبراج</span>
+                                <i class="fas fa-building unit-icon"></i>
+                            </div>
+                            <div class="unit-stat">
+                                <span class="unit-count">3958</span>
+                                <span class="unit-label">شقة</span>
+                                <i class="fas fa-home unit-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card card-tertiary">
+                <h3>مؤشرات الأداء</h3>
+                <div class="stat-flex">
+                    <div class="stat-item">
+                        <p>SPI</p>
+                        <div class="stat-value success-value">1.02</div>
+                    </div>
+                    <div class="stat-item">
+                        <p>CPI</p>
+                        <div class="stat-value danger-value">0.92</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">توزيع المشاريع والوحدات</div>
+            <div class="divider-line"></div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <h3 class="chart-title">توزيع أنواع الوحدات</h3>
+                <div class="chart-wrapper">
+                    <canvas id="unitTypeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3 class="chart-title">مراحل المشاريع</h3>
+                <div class="chart-wrapper">
+                    <canvas id="projectPhaseChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <h3 class="chart-title">توافر الوحدات</h3>
+                <div class="chart-wrapper">
+                    <canvas id="unitAvailabilityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3 class="chart-title">مقارنة الوحدات حسب المرحلة</h3>
+                <div class="chart-wrapper">
+                    <canvas id="unitsByPhaseChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">تفاصيل المشاريع ومؤشرات الأداء</div>
+            <div class="divider-line"></div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-card">
+                <h3 class="chart-title">مؤشرات أداء المشاريع</h3>
+                <div class="chart-wrapper">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                <div style="text-align: center; margin-top: 10px; font-size: 14px; color: var(--tertiary-color);">
+                    <p>يكون المؤشر إيجابي إذا كان أعلى أو يساوي 1</p>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3 class="chart-title">تفاصيل المشاريع حسب المرحلة</h3>
+                <div class="project-phases">
+                    <!-- التخطيط والتصميم -->
+                    <div class="phase-card phase-primary">
+                        <div class="phase-header">
+                            <h4 class="phase-title title-primary">التخطيط والتصميم</h4>
+                            <span class="phase-count primary-value">11</span>
+                        </div>
+                        <p class="phase-detail">• إضافة مشروعين بنية تحتية</p>
+                        <p class="phase-detail">• الأمواج 107000م والأبيض 106000م</p>
+                        <div class="metrics-row">
+                            <div class="metric-label">SPI</div>
+                            <div class="metric-value success-value">1.08</div>
+                        </div>
+                    </div>
+                    
+                    <!-- التنفيذ -->
+                    <div class="phase-card phase-quaternary">
+                        <div class="phase-header">
+                            <h4 class="phase-title title-quaternary">التنفيذ</h4>
+                            <span class="phase-count quaternary-value">30</span>
+                        </div>
+                        <p class="phase-detail">• بدء مشروع مكاتب المبيعات صدور</p>
+                        <p class="phase-detail">• رخصة البناء لمشروع حطين 178</p>
+                        <div class="metrics-row">
+                            <div class="metric-item">
+                                <div class="metric-label">SPI</div>
+                                <div class="metric-value success-value">1.02</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">CPI</div>
+                                <div class="metric-value danger-value">0.92</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- الإغلاق -->
+                    <div class="phase-card phase-secondary">
+                        <div class="phase-header">
+                            <h4 class="phase-title title-secondary">الإغلاق</h4>
+                            <span class="phase-count" style="color: var(--secondary-color);">14</span>
+                        </div>
+                        <p class="phase-detail">• طرح مشروع خيالا 1 للبيع بواقع 528 وحدة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>تقرير مشاريع الشركة العقارية © <span id="currentYear"></span></p>
+        </footer>
+    </div>
+    
+    <script>
+        // Data from the original image
+        const projectStats = {
+            totalProjects: 55,
+            activeProjects: 4,
+            totalUnits: 4968,
+            towers: 324,
+            buildings: 0, // Not provided in the image
+            apartments: 3958,
+            townhouses: 418,
+            villas: 568,
+            chalets: 24,
+            offices: 36750 // Assuming this is in square meters
+        };
+
+        const projectStatus = [
+            { name: 'التخطيط والتصميم', count: 11, color: '#a78645' },
+            { name: 'التنفيذ', count: 30, color: '#a99163' },
+            { name: 'الإغلاق', count: 14, color: '#36454F' }
+        ];
+
+        const planningUnits = {
+            totalUnits: 2262,
+            towers: 1,
+            buildings: 136,
+            apartments: 1660,
+            townhouses: 96,
+            villas: 506,
+            offices: 0
+        };
+
+        const executionUnits = {
+            totalUnits: 2706,
+            towers: 3,
+            buildings: 188,
+            apartments: 2298,
+            townhouses: 322,
+            villas: 62,
+            chalets: 24,
+            offices: 36750
+        };
+
+        const availabilityStats = {
+            availableUnits: 789,
+            soldUnits: 372,
+            handoverReady: 240,
+            emptyReady: 166
+        };
+
+        const performanceIndicators = {
+            spi: {
+                planning: 1.08,
+                execution: 1.02
+            },
+            cpi: {
+                execution: 0.92
+            }
+        };
+
+        // Chart data transformations
+        const unitTypeData = {
+            labels: ['الشقق', 'فيلا', 'تاون هاوس', 'شاليهات', 'المكاتب'],
+            datasets: [{
+                data: [
+                    projectStats.apartments, 
+                    projectStats.villas, 
+                    projectStats.townhouses, 
+                    projectStats.chalets, 
+                    projectStats.offices
+                ],
+                backgroundColor: ['#a78645', '#a99163', '#776262', '#FF9800', '#4CAF50'],
+                borderWidth: 0
+            }]
+        };
+
+        const projectPhaseData = {
+            labels: projectStatus.map(item => item.name),
+            datasets: [{
+                label: 'عدد المشاريع',
+                data: projectStatus.map(item => item.count),
+                backgroundColor: projectStatus.map(item => item.color),
+                borderWidth: 0
+            }]
+        };
+
+        const unitAvailabilityData = {
+            labels: ['الوحدات المتاحة', 'الوحدات المباعة 2025', 'متبقي التسليم', 'متبقي الإفراغ'],
+            datasets: [{
+                label: 'عدد الوحدات',
+                data: [
+                    availabilityStats.availableUnits,
+                    availabilityStats.soldUnits,
+                    availabilityStats.handoverReady,
+                    availabilityStats.emptyReady
+                ],
+                backgroundColor: ['#a78645', '#a99163', '#776262', '#FF9800'],
+                borderWidth: 0
+            }]
+        };
+
+        const unitsByPhaseData = {
+            labels: ['الأبراج', 'المباني', 'الشقق', 'تاون هاوس', 'فيلا'],
+            datasets: [
+                {
+                    label: 'التخطيط والتصميم',
+                    data: [
+                        planningUnits.towers,
+                        planningUnits.buildings,
+                        planningUnits.apartments,
+                        planningUnits.townhouses,
+                        planningUnits.villas
+                    ],
+                    backgroundColor: '#a78645',
+                },
+                {
+                    label: 'التنفيذ',
+                    data: [
+                        executionUnits.towers,
+                        executionUnits.buildings,
+                        executionUnits.apartments,
+                        executionUnits.townhouses,
+                        executionUnits.villas
+                    ],
+                    backgroundColor: '#a99163',
+                }
+            ]
+        };
+
+        const performanceData = {
+            labels: ['التخطيط SPI', 'التنفيذ SPI', 'التنفيذ CPI'],
+            datasets: [
+                {
+                    label: 'القيمة الفعلية',
+                    data: [
+                        performanceIndicators.spi.planning,
+                        performanceIndicators.spi.execution,
+                        performanceIndicators.cpi.execution
+                    ],
+                    backgroundColor: [
+                        performanceIndicators.spi.planning >= 1 ? '#4CAF50' : '#F44336',
+                        performanceIndicators.spi.execution >= 1 ? '#4CAF50' : '#F44336',
+                        performanceIndicators.cpi.execution >= 1 ? '#4CAF50' : '#F44336'
+                    ],
+                },
+                {
+                    label: 'القيمة المستهدفة',
+                    data: [1.0, 1.0, 1.0],
+                    backgroundColor: '#9E9E9E',
+                }
+            ]
+        };
+
+        // Format number to Arabic locale
+        function formatNumber(num) {
+            return new Intl.NumberFormat('ar-SA').format(num);
+        }
+
+        // Create charts when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Configure Chart.js global options
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            Chart.defaults.font.size = 14;
+            Chart.defaults.color = '#36454F';
+            
+            // Create Unit Type Chart (Pie)
+            const unitTypeCtx = document.getElementById('unitTypeChart').getContext('2d');
+            new Chart(unitTypeCtx, {
+                type: 'pie',
+                data: unitTypeData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const percentage = ((value / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                                    return `${label}: ${formatNumber(value)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create Project Phase Chart (Bar)
+            const projectPhaseCtx = document.getElementById('projectPhaseChart').getContext('2d');
+            new Chart(projectPhaseCtx, {
+                type: 'bar',
+                data: projectPhaseData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatNumber(context.raw)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create Unit Availability Chart (Horizontal Bar)
+            const unitAvailabilityCtx = document.getElementById('unitAvailabilityChart').getContext('2d');
+            new Chart(unitAvailabilityCtx, {
+                type: 'bar',
+                data: unitAvailabilityData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatNumber(context.raw)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create Units by Phase Chart (Grouped Bar)
+            const unitsByPhaseCtx = document.getElementById('unitsByPhaseChart').getContext('2d');
+            new Chart(unitsByPhaseCtx, {
+                type: 'bar',
+                data: unitsByPhaseData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatNumber(context.raw)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Create Performance Chart (Bar)
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: performanceData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1.5,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
