@@ -3,230 +3,777 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم تفاعلية - قطاع امتياز العملاء</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>الخطة التسويقية لعام 2025 - قطاع الأعمال التجارية</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* ألوان الهوية البصرية */
+        :root {
+            --primary-color: #a78645;
+            --secondary-color: #eeece1;
+            --tertiary-color: #776262;
+            --quaternary-color: #a99163;
+        }
+        
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            direction: rtl;
+            text-align: right;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            background-color: #f4f4f4;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: var(--tertiary-color);
+            font-size: 1.1rem;
+        }
+        
+        .section-divider {
+            display: flex;
+            align-items: center;
+            margin: 40px 0 20px;
+        }
+        
+        .divider-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: var(--secondary-color);
+        }
+        
+        .divider-text {
+            padding: 0 20px;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-top: 3px solid var(--primary-color);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
-        .dashboard {
-            width: 90%;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .summary-card .title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .summary-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--tertiary-color);
+        }
+        
+        .summary-card .subtitle {
+            font-size: 0.9rem;
+            color: var(--quaternary-color);
+        }
+        
+        .summary-card .detail {
+            margin-top: auto;
+            font-size: 0.85rem;
+            color: var(--tertiary-color);
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .chart-section {
+            background-color: white;
             border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
         }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .chart-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .chart-total {
+            font-size: 1.2rem;
+            color: var(--tertiary-color);
+            font-weight: bold;
+        }
+        
         .chart-container {
-            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
-        .feedback-table, .budget-table {
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-box {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        /* دائرة نسبية */
+        .donut-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        
+        /* جدول الميزانية */
+        .budget-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        .feedback-table th, .feedback-table td, .budget-table th, .budget-table td {
-            padding: 10px;
+        
+        .budget-table th, .budget-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .budget-table th {
+            background-color: var(--secondary-color);
+            color: var(--tertiary-color);
+            font-weight: bold;
+        }
+        
+        .budget-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .budget-table tr:last-child {
+            font-weight: bold;
+            background-color: var(--secondary-color);
+        }
+        
+        .budget-value {
+            text-align: left;
+            direction: ltr;
+        }
+        
+        /* جدول المستهدفات */
+        .targets-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .targets-table th, .targets-table td {
+            padding: 12px 15px;
             text-align: center;
             border: 1px solid #ddd;
         }
-        .feedback-table th, .budget-table th {
-            background-color: #776262;
-            color: #fff;
+        
+        .targets-table th {
+            background-color: var(--secondary-color);
+            color: var(--tertiary-color);
+            font-weight: bold;
         }
-        .feedback-table td, .budget-table td {
-            background-color: #eeece1;
+        
+        .targets-table tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
-        .timeline {
+        
+        /* رسم بياني شريطي */
+        .bar-chart-container {
+            width: 100%;
             margin-top: 20px;
         }
-        .timeline .task {
+        
+        .bar-item {
+            margin-bottom: 15px;
+        }
+        
+        .bar-title {
             display: flex;
-            align-items: center;
-            margin-bottom: 10px;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
         }
-        .timeline .status {
-            width: 100px;
-            padding: 5px;
-            text-align: center;
-            color: #fff;
+        
+        .bar-title .name {
+            font-weight: bold;
+        }
+        
+        .bar-outer {
+            width: 100%;
+            height: 30px;
+            background-color: #eee;
             border-radius: 5px;
+            overflow: hidden;
         }
-        .timeline .status.completed {
-            background-color: #a78645;
+        
+        .bar-inner {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px 0 0 5px;
+            width: 0;
+            transition: width 1s ease-out;
         }
-        .timeline .status.in-progress {
-            background-color: #a99163;
+        
+        .targets-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
         }
-        .timeline .status.pending {
-            background-color: #776262;
+        
+        .target-item {
+            flex: 1 1 200px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            border-right: 3px solid var(--primary-color);
+        }
+        
+        .target-item .label {
+            font-weight: bold;
+            color: var(--tertiary-color);
+            margin-bottom: 5px;
+        }
+        
+        .target-item .target-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .target-item .metric {
+            font-size: 0.85rem;
+            color: var(--quaternary-color);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--tertiary-color);
+            border-top: 1px solid #ddd;
+        }
+        
+        /* أزرار التبديل */
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            background-color: #eee;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .toggle-btn:first-child {
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .toggle-btn:last-child {
+            border-radius: 0 20px 20px 0;
+        }
+        
+        .toggle-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* زر العودة لأعلى */
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .scroll-top.visible {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Customer Feedback Chart -->
-        <div class="chart-container">
-            <h2>تقييم العملاء لمرحلة تسجيل الاهتمام</h2>
-            <canvas id="feedbackChart"></canvas>
+    <div class="container">
+        <div class="header">
+            <h1>الخطة التسويقية لعام 2025</h1>
+            <p>قطاع الأعمال التجارية</p>
         </div>
-
-        <!-- Customer Feedback Table -->
-        <h2>ملاحظات العملاء</h2>
-        <table class="feedback-table">
-            <thead>
-                <tr>
-                    <th>اسم العميل</th>
-                    <th>التعليق</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>نايف أحمد التمران</td>
-                    <td>لم يتم التواصل معي إطلاقًا.</td>
-                </tr>
-                <tr>
-                    <td>افتخار المطيري</td>
-                    <td>أن يتم توضيح البيانات والمعلومات في الموقع بطريقة أفضل وذلك لاختصار الوقت.</td>
-                </tr>
-                <tr>
-                    <td>صهيب مرمش</td>
-                    <td>نحتاج سرعة أكبر في التواصل.</td>
-                </tr>
-                <tr>
-                    <td>يحيى العمري</td>
-                    <td>لم يتم اقتراح أي حلول بديلة مناسبة لاحتياجاتي في مشاريع أخرى.</td>
-                </tr>
-                <tr>
-                    <td>محمد العتيبي</td>
-                    <td>لم توجد إمكانية لتمديد الحجز.</td>
-                </tr>
-                <tr>
-                    <td>محمد القحطاني</td>
-                    <td>لو يتم إضافة فيديوهات للوحدات على الموقع.</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Design Requirements Timeline -->
-        <div class="timeline">
-            <h2>متطلبات التصاميم والعمليات</h2>
-            <div class="task">
-                <div class="status completed">مكتمل</div>
-                <div class="details">ترجمة احتياجات العملاء في التصميم</div>
+        
+        <div class="section-divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">ملخص المستهدفات</div>
+            <div class="divider-line"></div>
+        </div>
+        
+        <div class="card-container">
+            <div class="summary-card" style="border-color: var(--primary-color);">
+                <div class="title">رفع الوعي</div>
+                <div class="value">100 مليون</div>
+                <div class="subtitle">الوصول</div>
+                <div class="detail">المدة: سنوي/شهري - معايير القياس: التواصل الاجتماعي</div>
             </div>
-            <div class="task">
-                <div class="status in-progress">قيد التنفيذ</div>
-                <div class="details">مراجعة تصاميم المرافق</div>
+            
+            <div class="summary-card" style="border-color: var(--quaternary-color);">
+                <div class="title">إعادة التموضع</div>
+                <div class="value">تحسين الانطباعات</div>
+                <div class="subtitle">مؤشر اختبار العلامة التجارية</div>
+                <div class="detail">المدة: كل 6 أشهر - معايير القياس: استبيانات نصف سنوية</div>
             </div>
-            <div class="task">
-                <div class="status pending">معلق</div>
-                <div class="details">اختيار الأثاث</div>
+            
+            <div class="summary-card" style="border-color: var(--tertiary-color);">
+                <div class="title">التحويلات</div>
+                <div class="value">1,000,000</div>
+                <div class="subtitle">معدل التحويل</div>
+                <div class="detail">المدة: سنة - معايير القياس: Social Media Pixels</div>
             </div>
-            <div class="task">
-                <div class="status completed">مكتمل</div>
-                <div class="details">تحديث الممارسات</div>
-            </div>
-            <div class="task">
-                <div class="status in-progress">قيد التنفيذ</div>
-                <div class="details">معاينة الوحدات</div>
+            
+            <div class="summary-card" style="border-color: var(--secondary-color);">
+                <div class="title">مهتمين جدد</div>
+                <div class="value">80,000</div>
+                <div class="subtitle">الليدز</div>
+                <div class="detail">المدة: سنة - معايير القياس: نظام إتمام</div>
             </div>
         </div>
-
-        <!-- Budget Details Table -->
-        <h2>تفاصيل الميزانية</h2>
-        <table class="budget-table">
-            <thead>
-                <tr>
-                    <th>البند</th>
-                    <th>الميزانية (ريال سعودي)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>ميزانية التشغيل</td>
-                    <td>1,000,000</td>
-                </tr>
-                <tr>
-                    <td>ميزانية التسليم</td>
-                    <td>500,000</td>
-                </tr>
-                <tr>
-                    <td>ميزانية مركز العمليات</td>
-                    <td>300,000</td>
-                </tr>
-                <tr>
-                    <td>ميزانية الصيانة</td>
-                    <td>200,000</td>
-                </tr>
-                <tr>
-                    <td>ميزانية إدارة المجتمعات</td>
-                    <td>150,000</td>
-                </tr>
-                <tr>
-                    <td>ميزانية التواصل الاجتماعي</td>
-                    <td>100,000</td>
-                </tr>
-                <tr>
-                    <td>ميزانية الباقات</td>
-                    <td>250,000</td>
-                </tr>
-            </tbody>
-        </table>
+        
+        <div class="section-divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">ميزانية العلامة التجارية</div>
+            <div class="divider-line"></div>
+        </div>
+        
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">ميزانية العلامة التجارية - 2025</div>
+                <div class="chart-total">الإجمالي: <span id="totalBudget">10,000,000</span> ريال</div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-box">
+                    <div id="budgetDonutChart" class="donut-container"></div>
+                </div>
+                
+                <div class="chart-box">
+                    <div class="bar-chart-container" id="budgetBarChart">
+                        <!-- سيتم إنشاؤه بواسطة جافاسكريبت -->
+                    </div>
+                </div>
+            </div>
+            
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>البند</th>
+                        <th>الوصف</th>
+                        <th class="budget-value">الميزانية</th>
+                        <th class="budget-value">النسبة</th>
+                    </tr>
+                </thead>
+                <tbody id="budgetTableBody">
+                    <!-- سيتم إنشاؤها بواسطة JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section-divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">تفاصيل المستهدفات</div>
+            <div class="divider-line"></div>
+        </div>
+        
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">مؤشرات قياس الأداء</div>
+            </div>
+            
+            <div class="targets-summary">
+                <div class="target-item">
+                    <div class="label">رفع الوعي</div>
+                    <div class="target-value">100 مليون</div>
+                    <div class="metric">مؤشر القياس: الوصول</div>
+                </div>
+                
+                <div class="target-item">
+                    <div class="label">إعادة التموضع</div>
+                    <div class="target-value">تحسين الانطباعات</div>
+                    <div class="metric">مؤشر القياس: اختبار العلامة التجارية</div>
+                </div>
+                
+                <div class="target-item">
+                    <div class="label">التحويلات</div>
+                    <div class="target-value">1,000,000</div>
+                    <div class="metric">مؤشر القياس: معدل التحويل</div>
+                </div>
+                
+                <div class="target-item">
+                    <div class="label">مهتمين جدد</div>
+                    <div class="target-value">80,000</div>
+                    <div class="metric">مؤشر القياس: الليدز</div>
+                </div>
+            </div>
+            
+            <table class="targets-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">معايير القياس</th>
+                        <th colspan="4">الهدف</th>
+                    </tr>
+                    <tr>
+                        <th>رفع الوعي</th>
+                        <th>إعادة التموضع</th>
+                        <th>التحويلات</th>
+                        <th>مهتمين جدد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>معايير القياس</td>
+                        <td>التواصل الاجتماعي</td>
+                        <td>انطباعات/استبيانات نصف سنوية</td>
+                        <td>Social Media Pixels</td>
+                        <td>نظام إتمام</td>
+                    </tr>
+                    <tr>
+                        <td>المدة</td>
+                        <td>سنوي/شهري</td>
+                        <td>كل 6 أشهر</td>
+                        <td>سنة</td>
+                        <td>سنة</td>
+                    </tr>
+                    <tr>
+                        <td>مؤشر القياس</td>
+                        <td>الوصول</td>
+                        <td>مؤشر اختبار العلامة التجارية</td>
+                        <td>معدل التحويل</td>
+                        <td>الليدز</td>
+                    </tr>
+                    <tr>
+                        <td>المستهدف</td>
+                        <td>100 مليون</td>
+                        <td>تحسين الانطباعات</td>
+                        <td>1,000,000</td>
+                        <td>80,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            © <span id="currentYear"></span> - الخطة التسويقية لعام 2025 - قطاع الأعمال التجارية
+        </div>
     </div>
-
+    
+    <!-- زر العودة لأعلى -->
+    <div class="scroll-top" id="scrollTop">↑</div>
+    
+    <!-- إضافة مكتبة Chart.js -->
     <script>
-        // Customer Feedback Chart Data
-        const feedbackData = {
-            labels: ["سرعة الرد", "شمولية المعلومات", "المتابعة", "احترافية الموظفين", "فهم الاحتياجات", "تحديث البيانات"],
-            datasets: [{
-                label: "تقييم العملاء (%)",
-                data: [70, 65, 60, 80, 75, 50], // Example data; adjust as needed
-                backgroundColor: ["#a78645", "#a99163", "#776262", "#a78645", "#a99163", "#776262"],
-                borderColor: ["#a78645", "#a99163", "#776262", "#a78645", "#a99163", "#776262"],
-                borderWidth: 1
-            }]
-        };
-
-        // Feedback Chart Configuration
-        const feedbackConfig = {
-            type: 'bar',
-            data: feedbackData,
-            options: {
-                responsive: true,
-                plugins: {
-                    tooltip: {
-                        enabled: true
-                    },
-                    legend: {
-                        display: false
-                    }
+        // بيانات ميزانية العلامة التجارية
+        const budgetData = [
+            { name: 'المعارض والمؤتمرات', value: 5000000, description: 'المشاركة في المعارض والمؤتمرات الخاصة بالعقارات' },
+            { name: 'علاقات عامة', value: 1800000, description: 'العلاقات العامة والانشطة الإعلامية' },
+            { name: 'إنتاج الفيديوهات', value: 1000000, description: 'تكلفة إنتاج الفيديوهات الدعائية والترويجية للعلامة التجارية' },
+            { name: 'السوشال ميديا', value: 1000000, description: 'التكاليف المتعلقة بالتسويق عبر منصات التواصل الاجتماعي' },
+            { name: 'الترويج الرقمي', value: 700000, description: 'تكاليف الحملات الإعلانية عبر الإنترنت' },
+            { name: 'البحوث والتطوير', value: 250000, description: 'مصروفات البحث لتطوير العلامة التجارية والتوجهات السوقية' },
+            { name: 'برامج وتطبيقات', value: 250000, description: 'التكاليف المتعلقة بتطوير برامج وتطبيقات لترويج العلامة التجارية' }
+        ];
+        
+        // الألوان المستخدمة في الرسوم البيانية
+        const chartColors = [
+            '#a78645', '#776262', '#a99163', '#eeece1',
+            '#8a7144', '#635353', '#8d7b55', '#d0cdbd'
+        ];
+        
+        // حساب إجمالي الميزانية
+        const totalBudget = budgetData.reduce((sum, item) => sum + item.value, 0);
+        document.getElementById('totalBudget').textContent = formatNumber(totalBudget);
+        
+        // إضافة السنة الحالية في التذييل
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // إنشاء الرسم البياني الدائري (Donut Chart)
+        function createDonutChart() {
+            const canvas = document.createElement('canvas');
+            canvas.id = 'donutChart';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            
+            document.getElementById('budgetDonutChart').appendChild(canvas);
+            
+            const ctx = canvas.getContext('2d');
+            
+            // ترتيب البيانات من الأكبر إلى الأصغر
+            const sortedData = [...budgetData].sort((a, b) => b.value - a.value);
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: sortedData.map(item => item.name),
+                    datasets: [{
+                        data: sortedData.map(item => item.value),
+                        backgroundColor: chartColors,
+                        borderWidth: 0
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'التقييم (%)'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true,
+                            labels: {
+                                font: {
+                                    size: 12
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            rtl: true,
+                            titleAlign: 'right',
+                            bodyAlign: 'right',
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const percentage = ((value / totalBudget) * 100).toFixed(1);
+                                    return `${formatNumber(value)} ريال (${percentage}%)`;
+                                }
+                            }
                         }
                     },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'المعايير'
-                        }
-                    }
+                    cutout: '60%'
                 }
+            });
+        }
+        
+        // إنشاء الرسم البياني الشريطي
+        function createBarChart() {
+            const container = document.getElementById('budgetBarChart');
+            
+            // ترتيب البيانات من الأكبر إلى الأصغر
+            const sortedData = [...budgetData].sort((a, b) => b.value - a.value);
+            
+            // الحصول على أقصى قيمة
+            const maxValue = Math.max(...sortedData.map(item => item.value));
+            
+            // إنشاء شريط لكل بند
+            sortedData.forEach((item, index) => {
+                const percentage = (item.value / maxValue) * 100;
+                
+                const barItem = document.createElement('div');
+                barItem.className = 'bar-item';
+                
+                const barTitle = document.createElement('div');
+                barTitle.className = 'bar-title';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                nameSpan.textContent = item.name;
+                
+                const valueSpan = document.createElement('span');
+                valueSpan.className = 'value';
+                valueSpan.textContent = formatNumber(item.value) + ' ريال';
+                
+                barTitle.appendChild(nameSpan);
+                barTitle.appendChild(valueSpan);
+                
+                const barOuter = document.createElement('div');
+                barOuter.className = 'bar-outer';
+                
+                const barInner = document.createElement('div');
+                barInner.className = 'bar-inner';
+                barInner.style.backgroundColor = chartColors[index % chartColors.length];
+                
+                barOuter.appendChild(barInner);
+                
+                barItem.appendChild(barTitle);
+                barItem.appendChild(barOuter);
+                
+                container.appendChild(barItem);
+                
+                // تحريك الشريط بعد إضافته للحصول على تأثير الرسوم المتحركة
+                setTimeout(() => {
+                    barInner.style.width = `${percentage}%`;
+                }, 100 * index);
+            });
+        }
+        
+        // إنشاء جدول الميزانية
+        function createBudgetTable() {
+            const tbody = document.getElementById('budgetTableBody');
+            
+            // ترتيب البيانات من الأكبر إلى الأصغر
+            const sortedData = [...budgetData].sort((a, b) => b.value - a.value);
+            
+            // إنشاء صفوف الجدول
+            sortedData.forEach(item => {
+                const percentage = ((item.value / totalBudget) * 100).toFixed(1);
+                
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td class="budget-value">${formatNumber(item.value)} ريال</td>
+                    <td class="budget-value">${percentage}%</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // إضافة صف المجموع
+            const totalRow = document.createElement('tr');
+            totalRow.innerHTML = `
+                <td colspan="2">الإجمالي</td>
+                <td class="budget-value">${formatNumber(totalBudget)} ريال</td>
+                <td class="budget-value">100%</td>
+            `;
+            
+            tbody.appendChild(totalRow);
+        }
+        
+        // تنسيق الأرقام
+        function formatNumber(num) {
+            return new Intl.NumberFormat('ar-SA').format(num);
+        }
+        
+        // عند تحميل النافذة
+        window.addEventListener('DOMContentLoaded', () => {
+            // إضافة مكتبة Chart.js
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+            document.body.appendChild(script);
+            
+            script.onload = () => {
+                // إنشاء الرسوم البيانية
+                createDonutChart();
+                createBarChart();
+                createBudgetTable();
+                
+                // تفعيل الرسوم المتحركة عند التمرير
+                animateOnScroll();
+            };
+        });
+        
+        // تفعيل التمرير للأعلى
+        window.addEventListener('scroll', () => {
+            toggleScrollTopButton();
+        });
+        
+        document.getElementById('scrollTop').addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // إظهار/إخفاء زر التمرير للأعلى
+        function toggleScrollTopButton() {
+            const scrollButton = document.getElementById('scrollTop');
+            
+            if (window.scrollY > 500) {
+                scrollButton.classList.add('visible');
+            } else {
+                scrollButton.classList.remove('visible');
             }
-        };
-
-        // Render the Feedback Chart
-        const feedbackChart = new Chart(document.getElementById('feedbackChart'), feedbackConfig);
+        }
+        
+        // تحريك العناصر عند التمرير
+        function animateOnScroll() {
+            const sections = document.querySelectorAll('.chart-section');
+            const cardContainers = document.querySelectorAll('.card-container');
+            const animatedElements = [...sections, ...cardContainers];
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            animatedElements.forEach(element => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(element);
+            });
+        }
     </script>
 </body>
 </html>
